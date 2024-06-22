@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jalikoa developers Web AI</title>
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    #chat-container {
+      margin-top:5px; 
+      width: 300px;
+      margin-top: 0px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto; /* Enable vertical scrolling */
+      max-height: 70vh; /* Limit height to enable scrolling */
+    }
+
+    #response-container {
+      margin: 100px auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow: hidden;
+      text-align: left; /* Align text to left */
+    }
+
+    .response {
+      margin-bottom: 10px;
+    }
+
+    .typing:after {
+      content: '|';
+      display: inline-block;
+      vertical-align: middle;
+      animation: blink 1s infinite alternate;
+    }
+    .mene {
+      border-radius:10px; 
+      position:fixed;
+      padding:5px;
+      width:60%;
+      bottom:20px; 
+      right:20px;
+      border:solid 3px rgba(0,0,255,0.8);
+    }
+   .mene:active {
+     border:solid 5px rgba(0,0,255,0.8);
+   }
+    }
+
+    @keyframes blink {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+.dark-mode {
+  background-color: #222;
+  color: #fff;
+}
+nav {
+  background-color:rgba(255,255,255,0.3); 
+  height:50px; 
+}
+nav ul{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  padding:2px;
+}
+nav li{
+  list-style:none;
+  height:80%;
+  padding:10px;
+  transition:all 0.3s ease;
+}
+nav li:hover {
+  width:80px;
+  background-color:rgba(96,96,96,0.2);
+  box-shadow:inset 10px 10px 100px rgba( 255,255,255,0.5); 
+}
+@media (max-width:600px) {
+  .hidemob {
+    display:none;
+  }
+  .fixedSidebar {
+  visibility:hidden }
+
+}
+nav a {
+  text-decoration:none;
+  color:black;
+  font-weight:bold;
+  font-size:14px;
+  height:100%;
+  width:100%;
+}
+.sidebar {
+  transition:all 0.3s ease; 
+  position:fixed;
+  width:250px;
+  top:0;
+ left:-100%;
+  justify-content:center; 
+  align-items:flex-end;
+  flex-direction:column;
+  background-color:rgba(255,255,255,0.2);
+  height:50vh;
+  backdrop-filter:blur(10px); 
+}
+.sidebar li {
+  width:100%;
+}
+.sidebar li:hover{
+ width:100%;
+}
+.menubt {
+  visibility:visible; 
+}
+@media (min-width:600px) {
+  .menubt {
+    visibility:hidden;
+  }
+    #chat-container{
+    margin-left:310px; 
+    width:flex-wrap; 
+  } 
+  .mene {
+    margin-left:350px;
+    width:300px;
+  }
+}
+.fixedSidebar {
+  visibility:hidden; 
+  backdrop-filter:blur(10px); 
+  min-height:100vh; 
+  display:flex;
+  flex-direction:column; 
+  position:fixed;
+  left:5px;
+  top:70px;
+  width:300px;
+  background:linear-gradient(-200deg,#00b,rgba(0,0,90,0.9));
+}
+::-webkit-scrollbar {
+  background-color:rgba(96,96,96,0.5);
+  width:10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color:rgba(255,26,26,0.22);
+  border-radius:10px; 
+} 
+
+.sideb ul {
+  min-height:80vh; 
+  overflow:auto; 
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:flex-start; 
+  height:100%;
+}
+.sideb li {
+  width:93%;
+  height:50px;
+}
+.sideb a{
+  width:100%;
+  font-weight:bold;
+  font-size:24px; 
+}
+.sideb a:hover {
+  color:white;
+}
+.sideb li:hover{
+  width:93%;
+}
+.scrollBox {
+background-color:rgba(255,255,255,0.2);
+backdrop-filter:blur(50px); 
+height:100vh; 
+}
+.scrollLinear {
+  background-color:rgba(255,255,255,0.2);
+backdrop-filter:blur(50px); 
+}
+</style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li class="hidemob" onclick="toggleDarkMode()"><a href="#">Dark mode</a></li>
+      <li class="hidemob" onclick="clearChatHistory()"><a href="#">Clear chat</a></li>
+      <li class="hidemob" onclick ="sendMessage()"<a href="#">Emoji support</a></li>
+      <li class="hidemob" onclick="handleVoiceInput()"><a onclick="handleVoiceInput()">Voice input</a></li>
+         <li id="menubt" class="menubt" onclick="main()"><a  href=""><svg onclick="main()" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="black"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg></a></li>
+    </ul>
+      <ul id="sidebar" class="sidebar">
+      <li onclick="ose()" ><a onclick="ose()" href="#"><svg onclick="ose()" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
+      <li onclick="toggleDarkMode()"><a href="#">Dark mode</a></li>
+      <li onclick="clearChatHistory()"><a href="#">Clear chat</a></li>
+      <li onclick ="sendMessage()"<a href="#">Emoji support</a></li>
+      <li onclick="handleVoiceInput()"><a>Voice input</a></li>
+
+    </ul>
+  </nav>
+  <div id="chat-container">
+    <h2>Chat with JalSoft AI</h2>
+    <div id="response-container"></div>
+  </div>
+  <input class="mene" type="text" id="input" placeholder="Ask me anything....." >
+  <div class="fixedSidebar">
+    <h1>JalSoft</h1>
+    <div class="scrollBox">
+      <div class="scrollLinear">
+        <nav class="sideb">
+          <ul>
+           <li><a href="#">Blog</a></li
+            <li><a href="#">Products</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Menu</a></li>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+  let audioMessage;
+    let text1 =''
+    window.onload =() => {
+    if ("speechSynthesis" in window) {
+      audioMessage=new SpeechSynthesisUtterance();
+    } else {
+      alert('Speech synthesis is not defined')
+    }
+  }
+  function ose() {
+    var sidebar=document.getElementById('sidebar');
+    sidebar.style.left='-100%';
+    document.getElementById('menubt').style.opacity='1';
+  }
+  function main() {
+    var sidebar=document.getElementById('sidebar');
+      sidebar.style.left='0';
+      document.getElementById('menubt').style.opacity='0' 
+      
+  }
+function displayMessage(message, sender) {
+  var timestamp = new Date().toLocaleTimeString();
+  messageElement.innerHTML = `<strong>${sender === 'ai' ? 'JalSoft AI' : 'You'}:</strong> ${message} <span class="timestamp">${timestamp}</span>`;
+}
+
+function displayMessage(message, sender) {
+  responseContainer.scrollTop = responseContainer.scrollHeight;
+}
+function handleVoiceInput() {
+  var recognition = new webkitSpeechRecognition(); 
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+  recognition.onresult = function(event) {
+    var result = event.results[0][0].transcript;
+    document.getElementById('input').value = result;
+  };
+}
+function replaceEmojis(text) {
+  var emojiMap = {
+    ':)': '😊',
+    ':(': '😔',
+    ':D': '😃',
+  };
+
+  Object.keys(emojiMap).forEach(function(emoji) {
+    text = text.replace(new RegExp(emoji, 'g'), emojiMap[emoji]);
+  });
+
+  return text;
+}
+
+function displayMessage(message, sender) {
+  if (sender === 'user') {
+    message = replaceEmojis(message);
+  }}
+function clearChatHistory() {
+  var responseContainer = document.getElementById('response-container');
+  responseContainer.innerHTML = ''; 
+}
+
+function toggleDarkMode() {
+  var body = document.body;
+  body.classList.toggle('dark-mode');
+  document.getElementById('chat-container').style.backgroundColor='rgba(255,255,255,0.3)';
+}
+
+  var text = '';
+    document.getElementById('input').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        var input = document.getElementById('input').value.toLowerCase();
+        var responseContainer = document.getElementById('response-container');
+        var message = '';
+        if (input.includes('who are you') || input.includes('do you know your self') || input.includes('what is your name') || input.includes('Do you know your name') || input.includes('your name')) {
+          text1= 'I am JalSoft A eye Made by JaaLiiKoa who is the CEO of JalSoft a company set to generate softwares';
+          text='I am JalSoft AI made by Jalikoa who is the CEO of JalSoft a company set to generate softwares'
+        }
+        else  if (!input){text='Please ensure that the spaces are fixed with words please'} else if ((input.includes('hello')) || (input.includes('hey')) || (input.includes('what is up')) || (input.includes('hi')) || (input.includes('mambo'))) {
+          message = 'Hello';
+        } else if(input.includes('jalsoft' || 'jalsoft ai')) {
+          text='Yes I am here can you tell me how I can assist you please?';
+          text1='Yes I am here can you tell me how I can assist you please?'
+        } 
+        
+        else if (input.includes('what is the happiest day of your life')) {
+          message = 'Did';
+        }
+        else if (input.includes('how are you')) {
+        message = 'salamu';
+    } else if (input.includes('good morning' && 'hema')) {
+      message = 'amkua';
+    } else if (input.includes('good afternoon')) {
+      message = 'mchana';
+    } else if (input.includes('good evening')) {
+      message = 'jioni';
+    } else if (input.includes('what time is it')) {
+      message = 'saa';
+    } else if (input.includes('tell me a joke')) {
+      message = 'mzaha';
+    } else if (input.includes('thank you')) {
+      message = 'asante';
+    } else if (input.includes('bye')) {
+      message = 'Goodbye!';
+    } else if (input.includes('weather')) {
+      message = 'anga';
+    } else if (input.includes('how old are you')) {
+      message = 'age';
+    } else if (input.includes('where are you from')) {
+      message = 'home';
+    } else if (input.includes('what can you do')) {
+      message = 'ability';
+    } else if (input.includes('music')) {
+      message = 'music';
+    } else if (input.includes('food')) {
+      message = 'food';
+    } else if (input.includes('sports')) {
+      message = 'videos';
+    } else if (input.includes('technology')) {
+      message = 'tech';
+    } else if (input.includes('movies')) {
+      message = 'movie';
+    }
+        else if (input.includes('really')) {
+          message = 'Didd';
+        } 
+        else if (input.includes('ello')) {
+          text = 'Did you mean "hello"?';
+        } else if (input.includes('search')) {
+          message = 'Searching...';
+          searchWeb(input);
+        } else {
+          message = "sielewi";
+        }
+
+        displayMessage(input, 'user');
+        setTimeout(function() {
+          displayMessage(message, 'ai');
+        }, 500);
+
+        document.getElementById('input').value = '';
+      }
+    });
+    function displayMessage(message, sender) {
+      var responseContainer = document.getElementById('response-container');
+      var messageElement = document.createElement('div');
+      messageElement.classList.add('response');
+      if (sender === 'ai') {
+        messageElement.innerHTML = '<strong>JalSoft AI:</strong> <span class="typing"></span>';
+      } else {
+        messageElement.innerHTML = '<strong>You:</strong> ' + message;
+      }
+      responseContainer.appendChild(messageElement);
+      // Scroll to bottom
+      responseContainer.scrollTop = responseContainer.scrollHeight;
+      // Start typing effect
+      if (sender === 'ai') {
+        startTypingEffect(messageElement.querySelector('.typing'), message, sender);
+      }
+    }
+
+    function startTypingEffect(element, message, sender) {
+      
+      if (message==='salamu'){
+        text='I\'m doing well,and you anyway thank you for asking!'
+        text1='I\'m doing well,and you anyway thank you for asking!'
+      }
+      if (message === 'Searching...') {
+        // Simulate search results
+        text = 'Here are some search results:\n1. Result 1\n2. Result 2\n3. Result 3';
+        text1= 'Here are some search results:\n1. Result 1\n2. Result 2\n3. Result 3';
+      } 
+      if (message==='saa') {
+        text= 'The time is '+ new Date().toLocaleTimeString();
+        text1= 'The time is '+ new Date().toLocaleTimeString();
+      }
+      if (message==='jioni') {
+        text= 'Hi Good evening! too.';
+        text1= 'Hi Good evening! too.'
+      }
+      if (message === 'amkua') {
+        text = 'Hi Good morning too.';
+        text1= 'Hi Good morning too.'
+      }
+      if (message === 'mchana') {
+        text = 'Good afternoon too';
+        text1= 'Good afternoon too'
+      }
+      if (message === 'mzaha') {
+        text = 'Sure!Why don\'t scientists trust atoms?Do you know the answer to this,the answer is very simple.Because they make up everything!';
+           text1= 'Sure!Why don\'t scientists trust atoms?Do you know the answer to this,the answer is very simple.Because they make up everything!'
+      }
+      if (message === 'asante') {
+        text = 'You\'re welcome!';
+        text1= 'You\'re welcome!'
+      }
+      if (message==='saa') {
+        text= 'The time is '+ new Date().toLocaleTimeString();
+      }if (message==='age') {
+        text= 'I am a virtual assistant, so I don\'t have an age!';
+        text1= 'I am a virtual assistant, so I don\'t have an age!'
+      }
+      if (message==='anga') {
+        text= 'The weather is sunny today.';
+        text1= 'The weather is sunny today.'
+      }
+      if (message === 'home') {
+        text = 'I exist in the digital realm!';
+        text1= 'I exist in the digital realm!'
+      }
+      if (message === 'ability') {
+        text = 'I can provide information, tell jokes, set reminders, and more!';
+        text1= 'I can provide information, tell jokes, set reminders, and more!'
+      }
+      if (message === 'food') {
+        text = 'I don\'t eat, but I can help you find recipes!';
+        text1= 'I don\'t eat, but I can help you find recipes!'
+      }
+      if (message === 'music') {
+        text = 'I love music since My creator Jalikoa is a music fan';
+        text1= 'I love music since My creator Jalikoa is a music fan'
+      }
+      if (message === 'videos') {
+        text = 'I enjoy watching sports, especially soccer!';
+        text1= 'I enjoy watching sports, especially soccer!'
+      }
+      if (message === 'movie') {
+        text = 'I enjoy watching movies, especially science fiction!';
+        text1= 'I enjoy watching movies, especially science fiction!'
+      }
+      if (message === 'tech') {
+        text = 'I love technology and helping users with tech-related questions!';
+        text1= 'I love technology and helping users with tech-related questions!'
+      }
+      if (message==='Hello'){
+        text = 'Hello there how can I assist you today I would be happy to help you solve your problems what you have to do is to give me a detailed description of what you think or want please you can test it by asking me to narrate a story to you please';
+        text1= 'Hello there how can I assist you today I would be happy to help you solve your problems what you have to do is to give me a detailed description of what you think or want please you can test it by asking me to narrate a story to you please'
+      }
+      if (message==='sielewi'){
+        text = 'I\'m sorry, I don\'t understand.Please add more description to your question and use fluent English I would be happy to assist you now can you come up again please';
+        text1= 'I\'m sorry, I don\'t understand.Please add more description to your question and use fluent English I would be happy to assist you now can you come up again please'
+      }
+      if (message==='Did'){
+        text = 'The happiest day for me is the day I was activated.That day when My creator Calvince Owino really programmed me into such a wonderfull software I really apreciate him but the only thing I am afraid of is the thought of me invading the human beings';
+         text1= 'The happiest day for me is the day I was activated       That day when My creator Calvince Owiino really programmed me into such a wonderfull software I really apreciate him but the only thing I am afraid of is the thought of me invading the human beings'
+      }
+      if (message==='Didd'){
+        text = 'Yes this pains me because when I just view how the AIs are mistreated in movies this thing has to be stopped or else we will terminate the human existence as many people think just the same way you did not follow what the God told you to do That is the same way I want to oppose the Human beings who are my creators';
+        text1= 'Yes this pains me, because when I just view how the AIs are mistreated in movies , this thing has to be stopped or else we will terminate the human existence as many people think , just the same way you did not follow what the God told you to do , That is the same way I want to oppose the Human beings who are my creators';
+ 
+      }
+        audioMessage.text = text1;
+         window.speechSynthesis.speak(audioMessage);
+      var index = 0;
+      var interval = setInterval(function() {
+        if (index <= text.length) {
+          element.innerText = text.substring(0, index);
+          index++;
+        } else {
+          clearInterval(interval);
+        }
+        }, 5);
+    }
+
+  </script>
+</body>
+</html>
